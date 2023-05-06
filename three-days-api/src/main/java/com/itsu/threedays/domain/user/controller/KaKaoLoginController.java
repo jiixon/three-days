@@ -74,31 +74,30 @@ public class KaKaoLoginController {
 //                        .fireBaseToken(userDto.getFirebaseToken())
                         .build();
                 userService.saveUser(user);
-
                 log.info("user: {}",user);
-
 
                 User createUser = new User(email, "", Collections.singleton(simpleGrantedAuthority));
                 UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken = new UsernamePasswordAuthenticationToken(createUser, userDto.getKakaoAccessToken(), Collections.singleton(simpleGrantedAuthority));
-                //String token = tokenProvider.createToken(usernamePasswordAuthenticationToken);
-                //log.info("token 발급: {}", token);
-                //return new ResponseEntity<>(token, HttpStatus.OK);
+                String token = tokenProvider.createToken(usernamePasswordAuthenticationToken);
+                log.info("token 발급: {}", token);
+                return new ResponseEntity<>(token, HttpStatus.OK);
 
-            } else {
-                log.info("이미 등록된 회원");
-//                if (!userService.getUserId(email).get().getFireBaseToken().equals(userDto.getFirebaseToken())) { //파이어베이스 토큰 다르면 업데이트
+            }
+//            else {
+//                log.info("이미 등록된 회원");
+//                if (!userService.) { //파이어베이스 토큰 다르면 업데이트
 //                    log.info("firebaseToken Update");
 //                    User userId = userService.getUserId(email).get();
 ////                    userId.setFireBaseToken(userDto.getFirebaseToken());
 //                    userService.saveUser(userId);
 //                }
-
-//                User createUser = new User(email, "", Collections.singleton(simpleGrantedAuthority));
-//                UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken = new UsernamePasswordAuthenticationToken(createUser, userDto.getKakaoAccessToken(), Collections.singleton(simpleGrantedAuthority));
+//
+//                User updateUser = new User(email, "", Collections.singleton(simpleGrantedAuthority));
+//                UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken = new UsernamePasswordAuthenticationToken(updateUser, userDto.getKakaoAccessToken(), Collections.singleton(simpleGrantedAuthority));
 //                String token = tokenProvider.createToken(usernamePasswordAuthenticationToken);
 //                log.info("token 발급: {}", token);
 //                return new ResponseEntity<>(token, HttpStatus.OK);
-            }
+//            }
         } catch (HttpClientErrorException e) {
             log.error("access token err : {}", e.getMessage());
         } catch (Exception e) {

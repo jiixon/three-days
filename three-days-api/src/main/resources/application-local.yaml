@@ -13,3 +13,5 @@ spring:
     properties:
       hibernate:
         format_sql: true
+jwt:
+  secret: threedaysapitokensecretkey123149398230

@@ -10,18 +10,19 @@ import lombok.extern.slf4j.Slf4j;
 import org.json.JSONObject;
 import org.springframework.http.*;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.User;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Controller;
 import org.springframework.util.MultiValueMap;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.Collections;
 
 @RestController
@@ -35,7 +36,7 @@ public class KaKaoLoginController {
     private final JwtTokenProvider tokenProvider;
 
     @PostMapping("/login")
-    ResponseEntity<String> responseJwtToken(@RequestBody UserDto userDto) { //파베 토큰, 엑세스 토큰, 디바이스 아디 받아옴
+    ResponseEntity<String> responseJwtToken(@RequestBody UserDto userDto){ //파베 토큰, 엑세스 토큰, 디바이스 아디 받아옴
         String KAKAO_USERINFO_REQUEST_URL = "https://kapi.kakao.com/v2/user/me";
 
         HttpHeaders httpHeaders = new HttpHeaders();
@@ -80,6 +81,7 @@ public class KaKaoLoginController {
                 UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken = new UsernamePasswordAuthenticationToken(createUser, userDto.getKakaoAccessToken(), Collections.singleton(simpleGrantedAuthority));
                 String token = tokenProvider.createToken(usernamePasswordAuthenticationToken);
                 log.info("token 발급: {}", token);
+
                 return new ResponseEntity<>(token, HttpStatus.OK);
 
             }
@@ -105,5 +107,20 @@ public class KaKaoLoginController {
         }
         return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
     }
+
+    @GetMapping("/test")
+    public ResponseEntity<String> testApi(HttpServletRequest request) {
+        String jwt = tokenProvider.resolveToken(request);
+        if (jwt == null) {
+            return new ResponseEntity<>("JWT not found!", HttpStatus.BAD_REQUEST);
+        }
+
+        if (tokenProvider.validateToken(jwt)) {
+            return new ResponseEntity<>("JWT is valid", HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>("JWT is invalid", HttpStatus.UNAUTHORIZED);
+        }
+    }
+
 
 }

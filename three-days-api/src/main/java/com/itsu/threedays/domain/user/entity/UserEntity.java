@@ -31,7 +31,5 @@ public class UserEntity {
     @Enumerated(EnumType.STRING)
     private Role role;
 
-//    @Enumerated(EnumType.STRING)
-//    private OauthProvider oauthProvider;
 
 }
